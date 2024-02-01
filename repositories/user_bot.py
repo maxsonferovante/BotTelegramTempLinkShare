@@ -1,11 +1,13 @@
 import datetime
+import uuid
 
-from peewee import CharField, DateTimeField
+from peewee import CharField, DateTimeField, UUIDField
 
 from infra.database.postgres import BaseModel
 
 
-class User(BaseModel):
+class UserBot(BaseModel):
+    id = UUIDField(primary_key=True, default=uuid.uuid4)
     first_name = CharField()
     last_name = CharField()
     email = CharField()

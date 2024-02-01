@@ -16,6 +16,7 @@ class PostgresSQLPeeweeConnection(metaclass=Singleton):
         self.db = self.getConnection()
 
     def getConnection(self):
+        print ('creating connection to database...')
         return PostgresqlDatabase(
             DATABASE_NAME,
             user=DATABASE_USER,
