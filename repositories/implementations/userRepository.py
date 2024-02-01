@@ -1,4 +1,4 @@
-from orm.peewee.postgres import PostgresSQLPeeweeConnection
+from infra.database.postgres import PostgresSQLPeeweeConnection
 from repositories.user import User
 
 

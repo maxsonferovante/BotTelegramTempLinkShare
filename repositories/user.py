@@ -2,7 +2,7 @@ import datetime
 
 from peewee import CharField, DateTimeField
 
-from orm.peewee.postgres import BaseModel
+from infra.database.postgres import BaseModel
 
 
 class User(BaseModel):
