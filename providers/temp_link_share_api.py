@@ -1,4 +1,8 @@
+import io
+from typing import BinaryIO
+
 import requests
+import tempfile
 
 
 class TempLinkShareAPI:
@@ -38,3 +42,30 @@ class TempLinkShareAPI:
         except Exception as e:
             print(e)
             return False
+
+    @staticmethod
+    def upload_file(file: BinaryIO, token: str) -> None or dict:
+        if file is None:
+            raise ValueError("File is required - Param file is None")
+        if token is None:
+            raise ValueError("Token is required")
+
+        url = f"{TempLinkShareAPI.URL_BASE}/file/upload"
+        headers = {"Authorization": f"Bearer {token}"}
+        try:
+            file_content = io.BytesIO(file.read())
+            with tempfile.NamedTemporaryFile(delete=False) as temp:
+                temp.write(file_content.read())
+
+                response = requests.post(url, headers=headers,
+                                         files={"file": (temp.name, open(temp.name, "rb"),
+                                                         "multipart/form-data")})
+                if response.status_code == 201:
+                    return response.json()
+                else:
+                    print(response.status_code, response.json())
+                    raise Exception(response.json())
+
+        except Exception as e:
+            print(e)
+            raise Exception(e)

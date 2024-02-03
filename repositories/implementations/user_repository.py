@@ -36,7 +36,7 @@ class UserRepository:
 
     def get_user_by_chat_id(self, chat_id):
         try:
-            user = UserBot.get(UserBot.chat_id == chat_id)
+            user = UserBot.get(UserBot.chat_id == str(chat_id))
             return user
         except Exception as e:
             print(e)

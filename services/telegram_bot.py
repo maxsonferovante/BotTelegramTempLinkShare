@@ -1,5 +1,8 @@
 import traceback
+from typing import BinaryIO
+import io
 
+import telegram.error
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, filters, MessageHandler
 from telegram import Update
 
@@ -22,12 +25,8 @@ class TelegramService:
 
     def up_handler(self):
         self.app.add_handler(CommandHandler('start', self.welcome_command_handler))
-        self.app.add_handler(MessageHandler(filters.Document.ALL, self.upload_command_handler))
 
-    async def upload_command_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        file = await context.bot.get_file(update.message.document)
-        await update.message.reply_text(f'File received, please wait a moment')
-        await update.message.reply_text(f'File size: {file.file_size} bytes \n ')
+        self.app.add_handler(MessageHandler(filters.Document.ALL, self.upload_command_handler))
 
     async def welcome_command_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         user_telegram = update.message.from_user
@@ -48,13 +47,15 @@ class TelegramService:
         return user is not None
 
     def create_user(self, user_telegram):
-        password = generated_user_password()
-        email = generated_user_email(user_telegram.username, str(user_telegram.id))
-        try:
 
+        password = generated_user_password()
+
+        email = generated_user_email(user_telegram.username, user_telegram.id)
+        try:
             response_user_register = TempLinkShareAPI.user_register(email, password, user_telegram.first_name)
             if response_user_register:
                 response_user_login = TempLinkShareAPI.user_login(email, password)
+
                 self.userRepository.create_user(user_telegram.first_name,
                                                 user_telegram.last_name,
                                                 email, user_telegram.id,
@@ -63,3 +64,33 @@ class TelegramService:
         except Exception as e:
             print(e)
             return traceback.print_exc()
+
+    async def upload_command_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        try:
+            file = await update.message.effective_attachment.get_file()
+
+            await update.message.reply_text(f'File received, please wait a moment')
+            file_out: BinaryIO = io.BytesIO()
+            await file.download_to_memory(out=file_out)
+
+            if not self.check_user_existence(update.message.from_user.id):
+                await update.message.reply_text(f'User not found, please send /start command and try again.')
+            else:
+                user_telegram = self.userRepository.get_user_by_chat_id(update.message.from_user.id)
+                try:
+                    response_upload = TempLinkShareAPI.upload_file(file_out, user_telegram.token)
+                    await update.message.reply_text(
+                        f'<b>File saved with success!</b>\n'
+                        f'Você pode acessá-lo através do seguinte link:\n'
+                        f'<a href="{response_upload["responseUploaded"]["url"]}">Link do Arquivo</a>.\n'
+                        f'Este link estará disponível até <i>{response_upload["experationData"]}</i>.\n',
+                        parse_mode='HTML')
+                except Exception as e:
+                    print('(TempLinkShareAPI.upload_file):', e)
+                    await update.message.reply_text('Error sending file to please try again later')
+
+        except telegram.error.BadRequest as e:
+            if 'File is too big' in str(e):
+                await update.message.reply_text('File is too big, please send a file less than 20MB')
+            else:
+                await update.message.reply_text('Error sending file, please try again later')
