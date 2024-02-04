@@ -38,6 +38,7 @@ class TempLinkShareAPI:
             if response.status_code == 200:
                 return response.json()
             else:
+                print(response.status_code, response.json())
                 return False
         except Exception as e:
             print(e)
@@ -62,10 +63,28 @@ class TempLinkShareAPI:
                                                          "multipart/form-data")})
                 if response.status_code == 201:
                     return response.json()
+                elif response.status_code == 401:
+                    raise Exception("Invalid token")
                 else:
                     print(response.status_code, response.json())
                     raise Exception(response.json())
 
+        except Exception as e:
+            print(e)
+            raise Exception(e)
+
+    @staticmethod
+    def refresh_token(user_token: str) -> dict:
+        url = f"{TempLinkShareAPI.URL_BASE}/authenticate/refresh"
+        headers = {"Authorization": f"Bearer {user_token}"}
+        try:
+            response = requests.get(url, headers=headers)
+            if response.status_code == 200:
+                print(response)
+                return response.json()
+            else:
+                print(response.status_code, response.json())
+                raise Exception(response.json())
         except Exception as e:
             print(e)
             raise Exception(e)

@@ -24,8 +24,9 @@ class TelegramService:
         self.app.run_polling()
 
     def up_handler(self):
-        self.app.add_handler(CommandHandler('start', self.welcome_command_handler))
 
+        self.app.add_handler(CommandHandler('start', self.welcome_command_handler))
+        self.app.add_handler(CommandHandler('refresh', self.refresh_command_handler))
         self.app.add_handler(MessageHandler(filters.Document.ALL, self.upload_command_handler))
 
     async def welcome_command_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -65,6 +66,26 @@ class TelegramService:
             print(e)
             return traceback.print_exc()
 
+    async def refresh_command_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+
+        try:
+            check_user_exist = self.check_user_existence(update.message.from_user.id)
+            if check_user_exist:
+
+                user_telegram = self.userRepository.get_user_by_chat_id(update.message.from_user.id)
+
+                response_user_login = TempLinkShareAPI.refresh_token(user_telegram.token)
+
+                self.userRepository.update_user_token(user_telegram, response_user_login['token'])
+
+                await update.message.reply_text(f'Session refreshed with success!')
+            else:
+                await update.message.reply_text(f'User not found, please send /start command and try again.')
+
+        except Exception as e:
+            print(e)
+            await update.message.reply_text('Error refreshing session, please try again later')
+
     async def upload_command_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         try:
             file = await update.message.effective_attachment.get_file()
@@ -81,13 +102,17 @@ class TelegramService:
                     response_upload = TempLinkShareAPI.upload_file(file_out, user_telegram.token)
                     await update.message.reply_text(
                         f'<b>File saved with success!</b>\n'
-                        f'Você pode acessá-lo através do seguinte link:\n'
-                        f'<a href="{response_upload["responseUploaded"]["url"]}">Link do Arquivo</a>.\n'
-                        f'Este link estará disponível até <i>{response_upload["experationData"]}</i>.\n',
-                        parse_mode='HTML')
+                         f'You can access it through the following link:\n'
+                         f'<a href="{response_upload["responseUploaded"]["url"]}">File Link</a>.\n'
+                         f'This link will be available until <i>{response_upload["experationData"]}</i>.\n',
+                            parse_mode='HTML')
+
                 except Exception as e:
-                    print('(TempLinkShareAPI.upload_file):', e)
-                    await update.message.reply_text('Error sending file to please try again later')
+                    if 'Invalid token' in str(e):
+                        await update.message.reply_text('Session expired, please send /refresh command and try again.')
+                    else:
+                        print('(TempLinkShareAPI.upload_file):', e)
+                        await update.message.reply_text('Error sending file to please try again later')
 
         except telegram.error.BadRequest as e:
             if 'File is too big' in str(e):
