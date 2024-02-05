@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+  telegram-bot:
+    build: .
+    container_name: bot-telegram-temp-link-share
+    environment:
+      - TZ=America/Sao_Paulo
+    restart: always
+    networks:
+      - templinkshare-network
+
+networks:
+  templinkshare-network:
+    driver: bridge
