@@ -6,7 +6,7 @@ O TempLinkShareBot é um bot do Telegram que permite o compartilhamento seguro e
 
 ## Tecnologias Utilizadas 
 
-[![My Skills](https://skillicons.dev/icons?i=python,postgres,peewee,docker,aws,git,github, telegram)](https://skillicons.dev)
+[![My Skills](https://skillicons.dev/icons?i=python,postgres,peewee,docker,aws,git,github,telegram)](https://skillicons.dev)
 
 ## Como Usar
 
