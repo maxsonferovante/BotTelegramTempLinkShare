@@ -4,7 +4,7 @@
 
 O TempLinkShareBot é um bot do Telegram que permite o compartilhamento seguro e temporário de arquivos através de links. Faça upload de arquivos e obtenha links de download com tempo de expiração. Ideal para compartilhar arquivos sensíveis, garantindo acesso restrito e temporário.
 
-## Tecnologias Utilizadas 
+### Tecnologias Utilizadas 
 
 [![My Skills](https://skillicons.dev/icons?i=python,postgres,docker,aws,git,github,telegram)](https://skillicons.dev)
 
@@ -12,7 +12,7 @@ O TempLinkShareBot é um bot do Telegram que permite o compartilhamento seguro e
 
 [Temp Link Shared Bot](https://t.me/TempLinkShareBot)
 
-## Como Usar Localmente
+### Como Usar Localmente
 
 Para executar o bot localmente, siga estas etapas:
 
@@ -51,7 +51,7 @@ Para executar o bot localmente, siga estas etapas:
    python main.py
    ```
 
-## TempLinkShare - API AWS S3
+### TempLinkShare - API AWS S3
 
 O TempLinkShare também inclui uma API em Node.js que lida com o acesso ao bucket S3 na AWS. Os arquivos são armazenados temporariamente e ficam disponíveis por 30 minutos.
 
