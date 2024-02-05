@@ -8,7 +8,11 @@ O TempLinkShareBot é um bot do Telegram que permite o compartilhamento seguro e
 
 [![My Skills](https://skillicons.dev/icons?i=python,postgres,docker,aws,git,github,telegram)](https://skillicons.dev)
 
-## Como Usar
+### Teste do Bot em produção
+
+[Temp Link Shared Bot](https://t.me/TempLinkShareBot)
+
+## Como Usar Localmente
 
 Para executar o bot localmente, siga estas etapas:
 
@@ -46,7 +50,6 @@ Para executar o bot localmente, siga estas etapas:
    ```bash
    python main.py
    ```
-
 
 ## TempLinkShare - API AWS S3
 
