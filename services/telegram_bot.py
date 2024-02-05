@@ -99,7 +99,8 @@ class TelegramService:
             else:
                 user_telegram = self.userRepository.get_user_by_chat_id(update.message.from_user.id)
                 try:
-                    response_upload = TempLinkShareAPI.upload_file(file_out, user_telegram.token)
+                    response_upload = TempLinkShareAPI.upload_file(file_out, user_telegram.token, file.file_path)
+
                     await update.message.reply_text(
                         f'<b>File saved with success!</b>\n'
                          f'You can access it through the following link:\n'

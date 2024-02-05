@@ -45,17 +45,26 @@ class TempLinkShareAPI:
             return False
 
     @staticmethod
-    def upload_file(file: BinaryIO, token: str) -> None or dict:
+    def upload_file(file: BinaryIO, token: str, path:str) -> None or dict:
         if file is None:
             raise ValueError("File is required - Param file is None")
         if token is None:
             raise ValueError("Token is required")
+        if path is None:
+            raise ValueError("Path is required")
 
         url = f"{TempLinkShareAPI.URL_BASE}/file/upload"
         headers = {"Authorization": f"Bearer {token}"}
+
         try:
             file_content = io.BytesIO(file.read())
-            with tempfile.NamedTemporaryFile(delete=False) as temp:
+            format_file = path.split("/")[-1].split(".")[-1]
+
+            if format_file:
+                format_file = "." + format_file
+
+            with tempfile.NamedTemporaryFile(delete=False, suffix=format_file) as temp:
+                print(temp.name)
                 temp.write(file_content.read())
 
                 response = requests.post(url, headers=headers,
